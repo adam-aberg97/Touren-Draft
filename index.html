@@ -79,6 +79,15 @@
   .rslots { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
   .rslots .ts { position: relative; }
   .rslots .c { position: absolute; top: 4px; left: 4px; background: var(--ink); color: #fff; font: 800 10px system-ui; border-radius: 99px; padding: 1px 6px; }
+  header { flex-wrap: wrap; }
+  .cd { margin-left: auto; background: var(--bg2); border: 2px solid var(--gold); border-radius: 14px; padding: 8px 14px; text-align: center; }
+  .cd .l { font: 700 11px/1 system-ui; letter-spacing: .16em; color: var(--gold); text-transform: uppercase; }
+  .cd .t { display: flex; gap: 10px; justify-content: center; margin-top: 6px; }
+  .cd .t div { min-width: 44px; }
+  .cd .t b { display: block; font: 800 28px/1 system-ui; font-variant-numeric: tabular-nums; color: var(--paper); }
+  .cd .t span { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
+  .cd .go { font: 800 18px/1.3 system-ui; color: var(--paper); margin-top: 4px; }
+  @media (max-width: 560px) { .cd { margin: 12px 0 0; width: 100%; } }
 </style>
 </head>
 <body>
@@ -89,6 +98,7 @@
       <div class="kicker">Calanova Cup · 19/11</div>
       <h1>Team &amp; Singles Pairings</h1>
     </div>
+    <div class="cd" id="cd" aria-live="off"><div class="l">Första boll 12:50 · 19/11</div><div class="t" id="cdt"></div></div>
   </header>
   <div class="sec"><h2>Spelform</h2><span class="ln"></span></div>
   <div class="info">
@@ -200,6 +210,19 @@ function renderTeams() {
 }
 renderTeams();
 load();
+// Nedräkning till första boll, torsdag 19/11 kl. 12:50 spansk tid (CET, UTC+1)
+const FIRST_TEE = Date.UTC(2026, 10, 19, 11, 50, 0);
+function tick() {
+  const ms = FIRST_TEE - Date.now();
+  const el = document.getElementById('cdt');
+  if (ms <= 0) { el.outerHTML = '<div class="go" id="cdt">Calanova Cup är igång! ⛳</div>'; return; }
+  const s = Math.floor(ms / 1000), d = Math.floor(s / 86400), h = Math.floor(s % 86400 / 3600), m = Math.floor(s % 3600 / 60), sec = s % 60;
+  const p = n => String(n).padStart(2, '0');
+  el.innerHTML = (d ? `<div><b>${d}</b><span>dag</span></div>` : '') +
+    `<div><b>${p(h)}</b><span>tim</span></div><div><b>${p(m)}</b><span>min</span></div><div><b>${p(sec)}</b><span>sek</span></div>`;
+  setTimeout(tick, 1000 - (Date.now() % 1000));
+}
+tick();
 </script>
 </body>
 </html>
